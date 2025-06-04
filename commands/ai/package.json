@@ -1,0 +1,31 @@
+{
+  "name": "cli-ai",
+  "version": "1.0.0",
+  "description": "CLI for AI",
+  "type": "module",
+  "scripts": {
+    "start": "bun run dist/index.js",
+    "build": "bun run src/index.ts",
+    "dev": "bun run src/index.ts",
+    "lint": "biome lint --write && bunx tsc --noEmit",
+    "format": "biome format --write",
+    "prepare": "bunx lefthook install"
+  },
+  "dependencies": {
+    "@clack/prompts": "latest",
+    "consola": "^3.4.2",
+    "detect-package-manager": "^3.0.2",
+    "editor-info": "^0.0.4",
+    "execa": "^9.6.0",
+    "getos": "^3.2.1",
+    "is-wsl": "^3.1.0",
+    "openai": "latest",
+    "picocolors": "latest",
+    "shell-env": "^4.0.1",
+    "which-pm-runs": "^1.1.0"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "@types/bun": "latest"
+  }
+}
