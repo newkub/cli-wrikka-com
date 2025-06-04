@@ -1,0 +1,17 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: install
+      run: bun install
+    - name: format
+      run: bunx biome format --write
+    - name: lint
+      run: bunx biome check
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: lint
+      run: bunx biome lint
+    - name: test
+      run: bun test

@@ -1,0 +1,23 @@
+# Turborepo
+.turbo
+node_modules
+
+# Build outputs
+**/dist
+**/build
+
+# Logs
+*.log
+
+# Environment files
+.env
+.env.local
+
+# Editor directories and files
+.idea
+.vscode
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?

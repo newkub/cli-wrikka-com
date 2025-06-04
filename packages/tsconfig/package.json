@@ -1,0 +1,8 @@
+{
+  "name": "@wrikka/tsconfig",
+  "version": "1.0.0",
+  "type": "module",
+  "exports": {
+    "./tsconfig.json": "./tsconfig.json"
+  }
+}

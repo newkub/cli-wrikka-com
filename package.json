@@ -1,0 +1,26 @@
+{
+	"name": "cli",
+	"version": "1.0.0",
+	"private": true,
+	"workspaces": ["commands/*", "packages/*"],
+	"scripts": {
+		"dev": "turbo run build && turbo run dev",
+		"build": "turbo run build",
+		"test": "turbo run test",
+		"lint": "biome lint --write && bunx tsc --noEmit",
+		"format": "biome run format --write",
+		"clean": "turbo run clean",
+		"check": "bunx knip"
+	},
+	"devDependencies": {
+		"turbo": "latest",
+		"@types/node": "22.15.29",
+		"typescript": "^5.8.3",
+		"@biomejs/biome": "latest"
+	},
+	"packageManager": "bun@1.2.15",
+	"dependencies": {
+		"@shikijs/transformers": "^3.4.2",
+		"shiki": "^3.4.2"
+	}
+}

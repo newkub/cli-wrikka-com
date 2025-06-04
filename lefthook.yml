@@ -1,0 +1,13 @@
+pre-commit:
+  parallel: true
+  jobs:
+    - name: install
+      run: bun install
+
+pre-push:
+  parallel: true
+  jobs:
+    - name: lint
+      run: bunx biome lint && bunx vue-tsc --noEmit
+    - name: audit
+      run: bun audit

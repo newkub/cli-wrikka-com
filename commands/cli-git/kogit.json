@@ -1,0 +1,83 @@
+{
+	"commit": {
+		"types": [
+			{ "value": "feat", "label": "Feature", "hint": "A new feature" },
+			{ "value": "fix", "label": "Fix", "hint": "A bug fix" },
+			{
+				"value": "docs",
+				"label": "Documentation",
+				"hint": "Documentation changes"
+			},
+			{ "value": "style", "label": "Style", "hint": "Code style changes" },
+			{ "value": "refactor", "label": "Refactor", "hint": "Code refactoring" },
+			{
+				"value": "perf",
+				"label": "Performance",
+				"hint": "Performance improvements"
+			},
+			{ "value": "test", "label": "Test", "hint": "Test related changes" },
+			{ "value": "chore", "label": "Chore", "hint": "Build/maintenance tasks" }
+		],
+		"scopes": ["frontend", "backend", "config", "ci", "docs"],
+		"validation": {
+			"minLength": 5,
+			"requiredFormat": "type(scope): description"
+		},
+		"ai": {
+			"enabled": true,
+			"provider": "openai",
+			"model": "gpt-3.5-turbo",
+			"maxTokens": 100
+		},
+		"behavior": {
+			"autoStage": false,
+			"confirmBeforeCommit": true,
+			"showDiffPreview": true
+		},
+		"ui": {
+			"theme": "default",
+			"showSpinners": true,
+			"emoji": true
+		}
+	},
+	"branch": {
+		"namingConvention": "{type}/{issue-id}-{description}",
+		"protections": {
+			"main": {
+				"requirePullRequest": true,
+				"requireApproval": true,
+				"requireStatusChecks": true
+			}
+		},
+		"default": "main"
+	},
+	"checkout": {
+		"trackRemote": true,
+		"autoStash": false
+	},
+	"log": {
+		"format": "%h - %an, %ar : %s",
+		"graph": true,
+		"filters": {
+			"author": "",
+			"since": "",
+			"until": ""
+		}
+	},
+	"stage": {
+		"interactive": true,
+		"patch": false
+	},
+	"merge": {
+		"strategy": "recursive",
+		"fastForward": "ff-only"
+	},
+	"rebase": {
+		"interactive": true,
+		"autosquash": false
+	},
+	"remote": {
+		"defaultPush": "upstream",
+		"autoFetch": true
+	}
+}

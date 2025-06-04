@@ -1,0 +1,37 @@
+import React, { useEffect, useRef } from 'react';
+import { Box, Text, TextInput } from 'ink';
+
+type Props = {
+  onSubmit: (value: string) => void;
+  placeholder?: string;
+};
+
+export function ChatInput({ onSubmit, placeholder }: Props) {
+  const inputRef = useRef<TextInput>(null);
+
+  useEffect(() => {
+    // Focus input immediately when component mounts
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <Box
+      borderStyle="round"
+      borderColor="gray"
+      paddingX={1}
+      flexDirection="column"
+      width="100%"
+    >
+      <Text color="gray">{placeholder || 'Type your message...'}</Text>
+      <Box marginTop={1}>
+        <Text>
+          <Text color="green">❯ </Text>
+          <TextInput
+            ref={inputRef}
+            onSubmit={onSubmit}
+          />
+        </Text>
+      </Box>
+    </Box>
+  );
+}
