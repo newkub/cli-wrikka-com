@@ -4,18 +4,19 @@ import useGit from "../utils/useGit";
 
 export async function checkout() {
   const git = useGit();
+  const gitRoot = process.cwd(); // Get current working directory as git root
 
   try {
     // ตรวจสอบ branch ทั้งหมด
-    const { stdout: branchesOutput } = await git.execute(['branch', '-a']);
+    const { stdout: branchesOutput = '' } = await git.execute(['branch', '-a']);
     const branches = branchesOutput
       .split('\n')
       .map(b => b.replace('*', '').trim())
-      .filter(b => b.length > 0);
+      .filter((b): b is string => b.length > 0);
 
     // ตรวจสอบ tags
-    const { stdout: tagsOutput } = await execa('git', ['tag'], { cwd: gitRoot });
-    const tags = tagsOutput.split('\n').filter(t => t.length > 0);
+    const { stdout: tagsOutput = '' } = await execa('git', ['tag'], { cwd: gitRoot });
+    const tags = tagsOutput.split('\n').filter((t): t is string => t.length > 0);
 
     // สร้าง options สำหรับเลือก
     const options = [

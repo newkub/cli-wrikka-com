@@ -177,8 +177,8 @@ async function enhanceCommit() {
     commitMessage += `: ${message}`;
 
     // Show final commit message
-    console.log('\n' + pc.bold(pc.blue('Commit message:')));
-    console.log(pc.green(commitMessage) + '\n');
+    console.log(`\n${pc.bold(pc.blue('Commit message:'))}`);
+    console.log(`${pc.green(commitMessage)}\n`);
 
     // Confirm before committing
     const proceed = await confirm({

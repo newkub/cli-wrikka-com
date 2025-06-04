@@ -1,15 +1,11 @@
 import pc from "picocolors";
-import useFzf from "@wrikka/tui";
+import { useFzf } from "@wrikka/tui";
 import useGit from "../utils/useGit";
 import { tryCatch, handleEither } from "../utils/Error";
 
-type FzfOptions = {
-    options: Array<{ value: string, label: string }>;
-    multiple?: boolean;
-};
-
 export async function cherryPick() {
     const git = useGit();
+    const fzf = useFzf();
 
     await handleEither(
         tryCatch(async () => {
@@ -19,26 +15,42 @@ export async function cherryPick() {
                 return;
             }
 
-            const result = await useFzf({
-                options: logEntries.map(entry => ({
-                    value: entry,
-                    label: entry,
-                })),
-                multiple: true,
-            } as FzfOptions);
+            // Create options for FZF selection
+            const options = logEntries.map(entry => ({
+                label: entry,
+                value: entry,
+            }));
 
-            const selected = Array.isArray(result) ? result : [result];
-
-            if (selected.length === 0 || !selected[0]) {
+            // Show FZF selector
+            const result = await fzf.runFzf(options, { multi: true });
+            
+            if (!result) {
                 console.log(pc.yellow("No commits selected"));
                 return;
             }
 
+            // Process selected commits
+            const selected = Array.isArray(result) ? result : [result];
+            
+            if (selected.length === 0) {
+                console.log(pc.yellow("No commits selected"));
+                return;
+            }
+
+            // Extract commit hashes (assuming format is "hash - message")
             const hashes = selected
-                .filter((s): s is string => s !== null)
-                .map(s => s.split(" - ")[0]);
+                .filter((s): s is string => typeof s === 'string')
+                .map(s => s.split(" ")[0]) // Get the hash part
+                .filter(Boolean); // Remove any empty strings
+
+            if (hashes.length === 0) {
+                console.log(pc.yellow("No valid commit hashes found"));
+                return;
+            }
+
+            // Execute git cherry-pick
             await git.execute(["cherry-pick", ...hashes]);
-            console.log(pc.green(`✓ Successfully cherry-picked ${selected.length} commits`));
+            console.log(pc.green(`✓ Successfully cherry-picked ${hashes.length} commits`));
         }, { code: 'GIT_ERROR' })
     );
 }

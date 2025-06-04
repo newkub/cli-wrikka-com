@@ -1,25 +1,27 @@
 {
-	"compilerOptions": {
-		"target": "ESNext",
-		"module": "ESNext",
-		"moduleResolution": "bundler",
-		"lib": ["ESNext"],
-		"outDir": "./dist",
-		"rootDir": "./src",
-		"strict": true,
-		"esModuleInterop": true,
-		"skipLibCheck": true,
-		"forceConsistentCasingInFileNames": true,
-		"resolveJsonModule": true,
-		"baseUrl": ".",
-		"paths": {
-			"@/*": ["src/*"]
-		},
-		"noEmit": false,
-		"declaration": true,
-		"sourceMap": true,
-		"isolatedModules": true
-	},
-	"include": ["src/**/*"],
-	"exclude": ["node_modules", "dist"]
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",
+    "lib": ["ESNext"],
+    "outDir": "./dist",
+    "rootDir": ".",
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "@utils/*": ["utils/*"]
+    },
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    "resolveJsonModule": true,
+    "noEmit": false,
+    "declaration": true,
+    "sourceMap": true,
+    "isolatedModules": true,
+    "composite": true
+  },
+  "include": ["src/**/*", "utils/**/*"],
+  "exclude": ["node_modules", "dist"]
 }

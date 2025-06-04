@@ -1,9 +1,11 @@
 {
-  "name": "flie",
+  "name": "registry",
   "version": "1.0.0",
-  "main": "./dist/index.js",
-  "types": "./dist/index.d.ts",
+  "description": "CLI registry management",
   "type": "module",
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
   "scripts": {
     "build": "tsdown",
     "dev": "bun --watch src/index.ts",
@@ -11,16 +13,15 @@
     "lint": "biome lint --write && bunx tsc --noEmit",
     "format": "biome format --write"
   },
-  "devDependencies": {
-    "@biomejs/biome": "latest",
-    "@types/bun": "latest"
-  },
   "dependencies": {
     "@clack/prompts": "latest",
     "consola": "^3.4.2",
     "execa": "^9.6.0"
   },
-  "module": "./dist/index.js",
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "@types/bun": "latest"
+  },
   "exports": {
     ".": "./dist/index.js",
     "./package.json": "./package.json"

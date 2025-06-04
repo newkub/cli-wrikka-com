@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "start": "bun run dist/index.js",
-    "build": "bun run src/index.ts",
+    "build": "tsdown",
     "dev": "bun run src/index.ts",
     "lint": "biome lint --write && bunx tsc --noEmit",
     "format": "biome format --write",
@@ -27,5 +27,12 @@
   "devDependencies": {
     "@biomejs/biome": "latest",
     "@types/bun": "latest"
+  },
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
   }
 }

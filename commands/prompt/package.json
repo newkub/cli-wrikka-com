@@ -1,0 +1,51 @@
+{
+  "name": "prompt",
+  "version": "1.0.0",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "type": "module",
+  "scripts": {
+    "build": "tsdown",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun dist/index.js",
+    "lint": "biome lint --write && bunx tsc --noEmit",
+    "format": "biome format --write"
+  },
+  "peerDependencies": {
+    "react": ">=16.8.0",
+    "react-dom": ">=16.8.0",
+    "ink": ">=3.0.0"
+  },
+  "peerDependenciesMeta": {
+    "react": {
+      "optional": true
+    },
+    "react-dom": {
+      "optional": true
+    },
+    "ink": {
+      "optional": true
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "latest",
+    "@types/bun": "latest",
+    "@types/node": "22.15.29",
+    "@types/react": "19.1.6",
+    "@types/react-dom": "19.1.6",
+    "typescript": "^5.8.3"
+  },
+  "dependencies": {
+    "@clack/prompts": "latest",
+    "consola": "^3.4.2",
+    "execa": "^9.6.0",
+    "ink": "6.0.0",
+    "react": "19.1.0",
+    "react-dom": "19.1.0"
+  },
+  "module": "./dist/index.js",
+  "exports": {
+    ".": "./dist/index.js",
+    "./package.json": "./package.json"
+  }
+}

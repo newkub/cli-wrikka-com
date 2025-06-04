@@ -19,7 +19,7 @@ export interface Command {
   value: string;
   label: string;
   hint: string;
-  handler: () => Promise<unknown> | void;
+  handler: () => Promise<unknown> | undefined;
 }
 
 export const COMMANDS: Command[] = [

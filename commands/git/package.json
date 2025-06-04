@@ -23,7 +23,7 @@
   "dependencies": {
     "@anthropic-ai/sdk": "^0.52.0",
     "@clack/prompts": "^0.11.0",
-    "@cli/git": "workspace:*",
+    "@wrikka/git": "workspace:*",
     "@google/genai": "^1.3.0",
     "@wrikka/tui": "workspace:*",
     "effect": "^3.16.3",

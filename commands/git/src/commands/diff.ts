@@ -50,7 +50,7 @@ export async function diff() {
         },
         { 
           value: 'cached', 
-          label: `Cached changes`,
+          label: "Cached changes",
           hint: DIFF_OPTIONS.cached.color('(git diff --cached)')
         }
       ]
@@ -68,6 +68,6 @@ export async function diff() {
       console.log(pc.gray('No changes found'));
     }
   } catch (error) {
-    outro(pc.red('Error: ' + (error as Error).message));
+    outro(pc.red(`Error: ${(error as Error).message}`));
   }
 }

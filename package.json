@@ -10,15 +10,16 @@
 		"dev": "turbo run build && turbo run dev",
 		"build": "turbo run build",
 		"test": "turbo run test",
-		"lint": "bunx biome lint --write && bunx tsc --noEmit",
-		"format": "bunx biome run format --write",
+		"lint": "turbo run lint",
+		"format": "turbo run format",
 		"clean": "turbo run clean",
 		"check:unused": "bunx knip",
-		"update:deps": "bunx taze -r -w"
+		"update:deps": "bun taze -r -w minor patch"
 	},
 	"devDependencies": {
 		"@types/bun": "latest",
-		"turbo": "latest"
+		"turbo": "latest",
+		"taze": "latest"
 	},
 	"packageManager": "bun@1.2.15"
 }

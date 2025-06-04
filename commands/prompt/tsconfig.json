@@ -1,0 +1,33 @@
+{
+	"compilerOptions": {
+		"target": "ESNext",
+		"module": "ESNext",
+		"moduleResolution": "bundler",
+		"esModuleInterop": true,
+		"strict": true,
+		"skipLibCheck": true,
+		"forceConsistentCasingInFileNames": true,
+		"resolveJsonModule": true,
+		"isolatedModules": true,
+		"noEmit": true,
+		"jsx": "react-jsx",
+		"jsxImportSource": "react",
+		"lib": ["ESNext", "DOM"],
+		"types": ["node", "react", "react-dom", "@types/bun"],
+		"baseUrl": ".",
+		"paths": {
+			"@/*": ["src/*"],
+			"@registry/utils/*": ["../registry/utils/*"]
+		},
+		"outDir": "./dist",
+		"composite": true,
+		"declaration": true,
+		"sourceMap": true,
+		"incremental": true,
+		"preserveSymlinks": true
+	},
+	"include": ["src/**/*", "../registry/utils/**/*.ts"],
+	"references": [
+		{ "path": "../registry" }
+	]
+}

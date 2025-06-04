@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import { TransitionGroup } from 'vue'
+import type { ExecException } from 'child_process'
 
 interface Commit {
   hash: string
@@ -22,10 +23,11 @@ const executeCommand = (cmd: string): Promise<string> => {
   return new Promise((resolve, reject) => {
     try {
       const { exec } = require('child_process')
+      
       exec(cmd, {
         cwd: process.cwd(),
         maxBuffer: 10 * 1024 * 1024 // 10MB buffer
-      }, (error: any, stdout: string, stderr: string) => {
+      }, (error: ExecException | null, stdout: string, stderr: string) => {
         if (error) {
           console.error('Command failed:', { cmd, error, stderr })
           reject(new Error(stderr || error.message))
@@ -181,8 +183,8 @@ const formatDiff = (diff: string) => {
     if (line.startsWith('@@')) {
       const match = line.match(/@@ -(\d+),?(\d*) \+(\d+),?(\d*) @@/)
       if (match) {
-        oldLineNumber = parseInt(match[1]) - 1
-        newLineNumber = parseInt(match[3]) - 1
+        oldLineNumber = Number.parseInt(match[1]) - 1
+        newLineNumber = Number.parseInt(match[3]) - 1
         inHunk = true
         lineInfo.push({
           type: 'marker',
@@ -229,9 +231,8 @@ const formatDiff = (diff: string) => {
   // Second pass: generate HTML based on view mode
   if (viewMode.value === 'unified') {
     return generateUnifiedView(lineInfo)
-  } else {
-    return generateSplitView(lineInfo)
   }
+  return generateSplitView(lineInfo)
 }
 
 const generateUnifiedView = (lines: LineInfo[]) => {
@@ -271,8 +272,8 @@ const generateSplitView = (lines: LineInfo[]) => {
   output += '<div class="split-side split-side-new">'
   
   // Process lines and build both sides
-  let leftLineNumber = 0
-  let rightLineNumber = 0
+  const leftLineNumber = 0
+  const rightLineNumber = 0
   let inHunk = false
   
   for (const line of lines) {
@@ -336,24 +337,31 @@ const generateSplitView = (lines: LineInfo[]) => {
 }
 
 // Simple syntax highlighting for common patterns
-const syntaxHighlight = (code: string) => {
+const syntaxHighlight = (input: string) => {
+  // First create a safe copy of the input
+  let result = input
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+  
   // Highlight strings
-  code = code.replace(/"([^"]*)"/g, '<span class="code-string">"$1"</span>')
+  result = result.replace(/"([^"]*)"/g, '<span class="code-string">"$1"</span>')
   
   // Highlight numbers
-  code = code.replace(/\b(\d+)\b/g, '<span class="code-number">$1</span>')
+  result = result.replace(/\b(\d+)\b/g, '<span class="code-number">$1</span>')
   
   // Highlight keywords
   const keywords = ['function', 'if', 'else', 'for', 'while', 'return', 'const', 'let', 'var', 'class', 'import', 'export', 'default', 'from', 'as']
-  keywords.forEach(keyword => {
+  for (const keyword of keywords) {
     const regex = new RegExp(`\\b${keyword}\\b`, 'g')
-    code = code.replace(regex, `<span class="code-keyword">${keyword}</span>`)
-  })
+    result = result.replace(regex, `<span class="code-keyword">${keyword}</span>`)
+  }
   
   // Highlight comments (// and /* */)
-  code = code.replace(/\/\/(.*)/g, '<span class="code-comment">//$1</span>')
+  result = result.replace(/\/\/(.*)/g, '<span class="code-comment">//$1</span>')
   
-  return code
+  return result
 }
 
 // Helper function to escape HTML

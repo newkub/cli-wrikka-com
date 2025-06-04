@@ -3,13 +3,6 @@ import pc from "picocolors";
 import { execa } from "execa";
 import useGit from "../utils/useGit";
 
-const ReleaseErrorCodes = {
-  USER_CANCELLED: 'USER_CANCELLED',
-  RELEASE_ERROR: 'RELEASE_ERROR',
-  GIT_ERROR: 'GIT_ERROR',
-  GITHUB_API_ERROR: 'GITHUB_API_ERROR'
-} as const;
-
 class ReleaseManagement {
   private git = useGit();
 
@@ -109,10 +102,11 @@ class ReleaseManagement {
       }
 
       switch (action) {
-        case "list":
+        case "list": {
           await this.listReleases();
           break;
-        case "compare":
+        }
+        case "compare": {
           const v1 = await text({
             message: "Enter first version to compare:",
           });
@@ -123,20 +117,23 @@ class ReleaseManagement {
           if (isCancel(v2)) break;
           await this.compareReleases(v1, v2);
           break;
-        case "rollback":
+        }
+        case "rollback": {
           const version = await text({
             message: "Enter version to rollback to:",
           });
           if (isCancel(version)) break;
           await this.rollbackRelease(version);
           break;
-        case "notes":
+        }
+        case "notes": {
           const ver = await text({
             message: "Enter version to view notes:",
           });
           if (isCancel(ver)) break;
           await this.getReleaseNotes(ver);
           break;
+        }
       }
     } finally {
       outro("Done");
