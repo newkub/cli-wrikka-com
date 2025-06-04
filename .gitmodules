@@ -1,3 +1,6 @@
 [submodule ".windsurf"]
 	path = .windsurf
 	url = https://github.com/newkub/.windsurf
+[submodule "packages-wrikka-com"]
+	path = packages-wrikka-com
+	url = https://github.com/newkub/packages-wrikka-com
