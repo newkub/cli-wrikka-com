@@ -1,8 +1,0 @@
-{
-  "name": "@wrikka/tsdownconfig",
-  "version": "1.0.0",
-  "type": "module",
-  "exports": {
-    "./tsdown.config.ts": "./tsdown.config.ts"
-  }
-}
