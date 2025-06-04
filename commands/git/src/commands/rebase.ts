@@ -9,7 +9,7 @@ function handleCancel<T>(value: T): boolean {
     return false;
 }
 
-export async function rebaseCommand() {
+export async function rebase() {
     const git = useGit();
     intro('✨ Git Rebase');
 

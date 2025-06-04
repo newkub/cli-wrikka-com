@@ -1,23 +1,25 @@
-import { commit } from "./commands/commit";
-import { hooks } from "./commands/hooks";
-import { remote } from "./commands/remote";
-import { repo } from "./commands/repo";
-import { release } from "./commands/release";
-import { workspace } from "./commands/workspace";
-import { diff } from "./commands/diff";
-import { branch } from "./commands/branch";
-import { checkout } from "./commands/checkout";
-import { log } from './commands/log';
-import { stash } from './commands/stash';
-import { rebaseCommand } from './commands/rebase';
-import { tag } from './commands/tag';
-import { fileHistory } from './commands/fileHistory';
+import { branch } from './branch';
+import { checkout } from './checkout';
+import { cherryPick } from './cherrypick';
+import { commit } from './commit';
+import { diff } from './diff';
+import { fileHistory } from './fileHistory';
+import { github } from './github';
+import { hooks } from './hooks';
+import { log } from './log';
+import { rebase as rebaseCommand } from './rebase';
+import { release } from './release';
+import { remote } from './remote';
+import { repo } from './repo';
+import { stash } from './stash';
+import { tag } from './tag';
+import { workspace } from './workspace';
 
 export interface Command {
   value: string;
   label: string;
   hint: string;
-  handler: () => Promise<void> | void;
+  handler: () => Promise<unknown> | void;
 }
 
 export const COMMANDS: Command[] = [
@@ -105,4 +107,21 @@ export const COMMANDS: Command[] = [
     hint: 'View file change history in browser',
     handler: fileHistory,
   },
+  {
+    value: 'github',
+    label: '🐙 GitHub',
+    hint: 'GitHub integration commands',
+    handler: github,
+  },
+  {
+    value: 'cherry-pick',
+    label: '🍒 Cherry Pick',
+    hint: 'Apply changes from specific commits',
+    handler: cherryPick,
+  },
 ];
+
+export { 
+  branch, checkout, cherryPick, commit, diff, fileHistory, github, 
+  hooks, log, rebaseCommand as rebase, release, remote, repo, stash, tag, workspace 
+};

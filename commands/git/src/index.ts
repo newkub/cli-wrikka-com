@@ -1,6 +1,6 @@
 import { intro, outro, cancel, select } from "@clack/prompts";
 import pc from "picocolors";
-import { COMMANDS } from "./commands";
+import { COMMANDS } from "./commands/index";
 import { useFzf } from "@wrikka/tui";
 
 (async function main() {
