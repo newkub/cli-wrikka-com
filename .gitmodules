@@ -1,0 +1,3 @@
+[submodule ".windsurf"]
+	path = .windsurf
+	url = https://github.com/newkub/.windsurf
