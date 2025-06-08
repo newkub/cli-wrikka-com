@@ -1,12 +1,11 @@
 import { text, select, isCancel } from "@clack/prompts";
 import pc from "picocolors";
-import useGit from "../utils/useGit";
+import { execa } from "execa";
+import { manageReleases } from "./release";
 
 type TagAction = "list" | "create" | "push" | "delete";
 
 export async function tag() {
-    const git = useGit();
-
     const action = await select({
         message: "Select tag action:",
         options: [
@@ -21,94 +20,66 @@ export async function tag() {
 
     switch (action) {
         case "list":
-            await listTags(git);
+            await listTags();
             break;
         case "create":
-            await createTag(git);
+            await manageReleases();
             break;
         case "push":
-            await pushTag(git);
+            await pushTag();
             break;
         case "delete":
-            await deleteTag(git);
+            await deleteTag();
             break;
     }
 }
 
-async function listTags(git: ReturnType<typeof useGit>) {
+async function listTags() {
     try {
-        const tags = await git.getTags();
+        const { stdout } = await execa("git", ["tag", "--list"]);
+        const tags = stdout.split("\n").filter(Boolean);
+
         if (tags.length === 0) {
-            console.log(pc.blue("No tags found"));
+            console.log(pc.yellow("No tags found in this repository."));
         } else {
-            console.log(pc.cyan("\nTags:"));
-            for (const tag of tags) {
-                console.log(` - ${tag}`);
-            }
+            console.log(pc.blue("\nTags:"));
+            tags.forEach((tag, index) => {
+                console.log(`  ${index + 1}. ${tag}`);
+            });
         }
     } catch (error) {
         console.error(pc.red("Failed to list tags:"), error instanceof Error ? error.message : error);
-        throw error;
     }
 }
 
-async function createTag(git: ReturnType<typeof useGit>) {
+async function pushTag() {
+    const tagName = await text({
+        message: "Enter tag name to push:",
+        validate: (value: string) => (!value ? "Tag name is required" : undefined),
+    });
+
+    if (isCancel(tagName)) return;
+
     try {
-        const tagName = await text({
-            message: "Enter tag name:",
-            validate: (name) => (!name ? "Tag name is required" : undefined),
-        });
-
-        if (isCancel(tagName)) return;
-
-        const message = await text({
-            message: "Enter tag message (optional):",
-        });
-
-        if (isCancel(message)) return;
-
-        const result = await git.createTag(tagName, message || undefined);
-        console.log(pc.green(`Created tag: ${result}`));
-    } catch (error) {
-        console.error(pc.red("Failed to create tag:"), error instanceof Error ? error.message : error);
-        throw error;
-    }
-}
-
-async function pushTag(git: ReturnType<typeof useGit>) {
-    try {
-        const tagName = await text({
-            message: "Enter tag name to push (leave empty for all tags):",
-        });
-
-        if (isCancel(tagName)) return;
-
-        if (tagName) {
-            await git.pushTag(tagName);
-            console.log(pc.green(`Pushed tag: ${tagName}`));
-        } else {
-            await git.execute(["push", "--tags"]);
-            console.log(pc.green("Pushed all tags"));
-        }
+        await execa("git", ["push", "origin", tagName], { stdio: "inherit" });
+        console.log(pc.green(`Tag ${tagName} pushed successfully`));
     } catch (error) {
         console.error(pc.red("Failed to push tag:"), error instanceof Error ? error.message : error);
-        throw error;
     }
 }
 
-async function deleteTag(git: ReturnType<typeof useGit>) {
+async function deleteTag() {
+    const tagName = await text({
+        message: "Enter tag name to delete:",
+        validate: (value: string) => (!value ? "Tag name is required" : undefined),
+    });
+
+    if (isCancel(tagName)) return;
+
     try {
-        const tagName = await text({
-            message: "Enter tag name to delete:",
-            validate: (name) => (!name ? "Tag name is required" : undefined),
-        });
-
-        if (isCancel(tagName)) return;
-
-        await git.deleteTag(tagName);
-        console.log(pc.green(`Deleted tag: ${tagName}`));
+        await execa("git", ["tag", "-d", tagName], { stdio: "inherit" });
+        console.log(pc.green(`Tag ${tagName} deleted successfully`));
     } catch (error) {
         console.error(pc.red("Failed to delete tag:"), error instanceof Error ? error.message : error);
-        throw error;
     }
 }
