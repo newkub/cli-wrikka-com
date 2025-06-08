@@ -92,6 +92,7 @@ async function main() {
 		}
 
 		outro("Done!");
+		process.exit(0);
 	} catch (error) {
 		consola.error("An error occurred:", error);
 		process.exit(1);

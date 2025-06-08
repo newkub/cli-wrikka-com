@@ -2,16 +2,27 @@ import { intro, outro, cancel, select } from "@clack/prompts";
 import pc from "picocolors";
 import { COMMANDS } from "./commands/index";
 import { useFzf } from "@wrikka/tui";
+import { showHelp, showVersion } from "./cli";
 
 (async function main() {
   try {
     // ตรวจสอบการเรียกใช้งานโดยตรง
     if (require.main !== module) return;
 
+    // ตรวจสอบ flag พิเศษ
+    const args = process.argv.slice(2);
+    if (args.includes('--help') || args.includes('-h')) {
+      showHelp();
+    }
+    
+    if (args.includes('--version') || args.includes('-v')) {
+      showVersion();
+    }
+
     const { runFzf } = useFzf();
     
     // หา command ที่ต้องการรัน
-    let selectedCommand: string | symbol | null = process.argv[2];
+    let selectedCommand: string | symbol | null = args[0];
     
     if (!selectedCommand) {
       // สร้างตัวเลือก command

@@ -6,7 +6,7 @@ import { diff } from './diff';
 import { fileHistory } from './fileHistory';
 import { github } from './github';
 import { hooks } from './hooks';
-import { log } from './log';
+import { commitLog } from './commit-log';
 import { rebase as rebaseCommand } from './rebase';
 import { release } from './release';
 import { remote } from './remote';
@@ -78,10 +78,10 @@ export const COMMANDS: Command[] = [
     handler: checkout,
   },
   {
-    value: 'log',
-    label: '📜 Log',
-    hint: 'View commit history',
-    handler: log,
+    value: "commit-log",
+    label: "📜 Commit Log",
+    hint: "View and search commit history",
+    handler: commitLog,
   },
   {
     value: 'stash',
@@ -121,7 +121,7 @@ export const COMMANDS: Command[] = [
   },
 ];
 
-export { 
-  branch, checkout, cherryPick, commit, diff, fileHistory, github, 
-  hooks, log, rebaseCommand as rebase, release, remote, repo, stash, tag, workspace 
+export {
+  branch, checkout, cherryPick, commit, diff, fileHistory, github,
+  hooks, commitLog, rebaseCommand as rebase, release, remote, repo, stash, tag, workspace
 };
