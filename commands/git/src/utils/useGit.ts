@@ -73,6 +73,16 @@ export async function getStashList(): Promise<GitStashInfo[]> {
   });
 }
 
+export async function getBranches(): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['branch', '--format=%(refname:short)']);
+    return stdout.split('\n').filter(Boolean);
+  } catch (error) {
+    console.error('Error getting branches:', error);
+    return [];
+  }
+}
+
 export default function useGit(cwd?: string) {
 	// Core execution method
 	const execute = async (

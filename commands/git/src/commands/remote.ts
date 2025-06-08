@@ -130,6 +130,23 @@ const handleFetch = async (
 	}
 };
 
+const handleSync = async (
+	git: ReturnType<typeof useGit>,
+	remoteNames: string[],
+): Promise<void> => {
+	const remote = await select({
+		message: "Select remote to sync with",
+		options: remoteNames.map((r) => ({ value: r, label: r })),
+	});
+
+	if (!isCancel(remote)) {
+		const currentBranch = await git.getCurrentBranch();
+		await git.fetchRemote(remote);
+		await git.pull(remote, currentBranch);
+		outro(pc.green(`Synced ${currentBranch} with ${remote}/${currentBranch}`));
+	}
+};
+
 const handleClone = async (git: ReturnType<typeof useGit>): Promise<void> => {
 	const url = await text({
 		message: "Enter repository URL to clone",
@@ -184,6 +201,7 @@ async function remote(): Promise<void> {
 				{ value: "push", label: "Push to remote" },
 				{ value: "pull", label: "Pull from remote" },
 				{ value: "fetch", label: "Fetch from remote" },
+				{ value: "sync", label: "Sync with remote (fetch + pull)" },
 				{ value: "clone", label: "Clone repository" },
 			];
 
@@ -197,29 +215,47 @@ async function remote(): Promise<void> {
 				return;
 			}
 
-			if (action === "add") {
-				await handleAddRemote(git);
-			} else if (action === "clone") {
-				await handleClone(git);
-			} else if (action === "push") {
-				await handlePush(git, remoteNames);
-			} else if (action === "pull") {
-				await handlePull(git, remoteNames);
-			} else if (action === "fetch") {
-				await handleFetch(git, remoteNames);
-			} else {
-				const name = await select({
-					message: "Select remote",
-					options: remoteNames.map((r) => ({ value: r, label: r })),
-				});
+			switch (action) {
+				case 'clone':
+					await handleClone(git);
+					break;
+				case 'add':
+					await handleAddRemote(git);
+					break;
+				case 'remove': {
+					const name = await select({
+						message: 'Select remote to remove',
+						options: remoteNames.map((r) => ({ value: r, label: r })),
+					});
 
-				if (!isCancel(name)) {
-					if (action === "remove") {
-						await handleRemoveRemote(git, name);
-					} else if (action === "rename") {
-						await handleRenameRemote(git, name, remoteNames);
+					if (!isCancel(name)) {
+						await handleRemoveRemote(git, name as string);
 					}
+					break;
 				}
+				case 'rename': {
+					const name = await select({
+						message: 'Select remote to rename',
+						options: remoteNames.map((r) => ({ value: r, label: r })),
+					});
+
+					if (!isCancel(name)) {
+						await handleRenameRemote(git, name as string, remoteNames);
+					}
+					break;
+				}
+				case 'push':
+					await handlePush(git, remoteNames);
+					break;
+				case 'pull':
+					await handlePull(git, remoteNames);
+					break;
+				case 'fetch':
+					await handleFetch(git, remoteNames);
+					break;
+				case 'sync':
+					await handleSync(git, remoteNames);
+					break;
 			}
 		}, { code: 'GIT_ERROR' })
 	);

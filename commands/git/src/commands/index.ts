@@ -10,11 +10,11 @@ import { commitLog } from './commit-log';
 import { rebase as rebaseCommand } from './rebase';
 import { release } from './release';
 import { remote } from './remote';
-import { repo } from './repo';
 import { stash } from './stash';
 import { status } from './status';
 import { tag } from './tag';
-import { workspace } from './workspace';
+import { cleanup } from './cleanup';
+import { search } from './search';
 
 export interface Command {
   value: string;
@@ -43,22 +43,10 @@ export const COMMANDS: Command[] = [
     handler: hooks,
   },
   {
-    value: "repo",
-    label: "📁 Repo",
-    hint: "Manage repository (submodules, worktrees)",
-    handler: repo,
-  },
-  {
     value: "release",
     label: "🚀 Release",
     hint: "Create a new release (tag, GitHub release, npm publish)",
     handler: release,
-  },
-  {
-    value: "workspace",
-    label: "🗂️  Workspace",
-    hint: "Manage workspace (create, delete, switch)",
-    handler: workspace,
   },
   {
     value: "diff",
@@ -126,9 +114,21 @@ export const COMMANDS: Command[] = [
     hint: 'Show the working tree status',
     handler: status,
   },
+  {
+    value: 'cleanup',
+    label: '🧹 Cleanup',
+    hint: 'Clean up merged branches and optimize repository',
+    handler: cleanup,
+  },
+  {
+    value: 'search',
+    label: '🔍 Search',
+    hint: 'Search in Git history (messages, code, authors)',
+    handler: search,
+  },
 ];
 
 export {
-  branch, checkout, cherryPick, commit, diff, fileHistory, github,
-  hooks, commitLog, rebaseCommand as rebase, release, remote, repo, stash, status, tag, workspace
+  branch, checkout, cherryPick, cleanup, commit, diff, fileHistory, github,
+  hooks, commitLog, rebaseCommand as rebase, release, remote, search, stash, status, tag
 };
