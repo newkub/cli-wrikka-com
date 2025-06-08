@@ -94,15 +94,8 @@ const handlePush = async (
 
 	if (!isCancel(remote)) {
 		const currentBranch = await git.getCurrentBranch();
-		const force = await confirm({
-			message: "Force push?",
-			initialValue: false,
-		});
-
-		if (!isCancel(force)) {
-			await git.push(remote, currentBranch, force);
-			outro(pc.green(`Pushed ${currentBranch} to ${remote}`));
-		}
+		await git.push(remote, currentBranch, false);
+		outro(pc.green(`Pushed ${currentBranch} to ${remote}`));
 	}
 };
 
