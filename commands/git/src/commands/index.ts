@@ -7,6 +7,8 @@ import { fileHistory } from './fileHistory';
 import { github } from './github';
 import { hooks } from './hooks';
 import { commitLog } from './commit-log';
+import { merge } from './merge';
+import { pullRequest } from './pull-request';
 import { rebase as rebaseCommand } from './rebase';
 import { release } from './release';
 import { remote } from './remote';
@@ -126,9 +128,21 @@ export const COMMANDS: Command[] = [
     hint: 'Search in Git history (messages, code, authors)',
     handler: search,
   },
+  {
+    value: 'merge',
+    label: '🔀 Merge',
+    hint: 'Merge branches with interactive conflict resolution',
+    handler: merge,
+  },
+  {
+    value: 'pull-request',
+    label: '🔄 Pull Request',
+    hint: 'Create a pull request from the current branch',
+    handler: pullRequest,
+  },
 ];
 
 export {
   branch, checkout, cherryPick, cleanup, commit, diff, fileHistory, github,
-  hooks, commitLog, rebaseCommand as rebase, release, remote, search, stash, status, tag
+  hooks, commitLog, merge, pullRequest, rebaseCommand as rebase, release, remote, search, stash, status, tag
 };

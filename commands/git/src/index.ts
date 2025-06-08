@@ -2,7 +2,13 @@ import { intro, outro, cancel, select } from "@clack/prompts";
 import pc from "picocolors";
 import { COMMANDS } from "./commands/index";
 import { useFzf } from "@wrikka/tui";
-import { showHelp, showVersion } from "./cli";
+import { 
+  showHelp, 
+  showVersion, 
+  handleFeedback, 
+  handleIssue, 
+  initFlags 
+} from "./flags";
 
 (async function main() {
   try {
@@ -11,12 +17,31 @@ import { showHelp, showVersion } from "./cli";
 
     // ตรวจสอบ flag พิเศษ
     const args = process.argv.slice(2);
+    
+    // ตรวจสอบ flag ต่างๆ
     if (args.includes('--help') || args.includes('-h')) {
       showHelp();
+      process.exit(0);
     }
     
     if (args.includes('--version') || args.includes('-v')) {
       showVersion();
+      process.exit(0);
+    }
+    
+    if (args.includes('--feedback')) {
+      await handleFeedback();
+      process.exit(0);
+    }
+    
+    if (args.includes('--issue')) {
+      await handleIssue();
+      process.exit(0);
+    }
+    
+    if (args.includes('--init')) {
+      await initFlags();
+      process.exit(0);
     }
 
     const { runFzf } = useFzf();

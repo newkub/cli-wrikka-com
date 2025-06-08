@@ -1,95 +1,102 @@
-import { execaCommand } from 'execa';
-import * as p from '@clack/prompts';
-import { Command } from './index';
+import * as clack from '@clack/prompts';
+import { execa } from 'execa';
 
-// Add CLI spinner
-const spinner = p.spinner();
+type CleanupTarget = {
+  name: string;
+  description: string;
+  command: string[];
+  confirmMessage: string;
+  successMessage: string;
+  danger?: boolean;
+};
 
 export async function cleanup() {
-  p.intro('🚀 Starting Git cleanup...');
+  const cwd = process.cwd();
   
+  const cleanupTargets: CleanupTarget[] = [
+    {
+      name: 'node_modules',
+      description: 'Remove node_modules directory',
+      command: ['rm', '-rf', 'node_modules'],
+      confirmMessage: 'This will delete the node_modules directory. Continue?',
+      successMessage: '✅ Successfully removed node_modules directory',
+      danger: true
+    },
+    {
+      name: 'build',
+      description: 'Remove build directory',
+      command: ['rm', '-rf', 'dist build .next out'],
+      confirmMessage: 'This will delete build directories (dist, build, .next, out). Continue?',
+      successMessage: '✅ Successfully removed build directories',
+      danger: true
+    },
+    {
+      name: 'git-ignored',
+      description: 'Clean untracked files (git clean -fdx)',
+      command: ['git', 'clean', '-fdx'],
+      confirmMessage: 'This will permanently delete all untracked files. Continue?',
+      successMessage: '✅ Successfully cleaned untracked files',
+      danger: true
+    },
+    {
+      name: 'git-cache',
+      description: 'Prune and optimize git repository',
+      command: ['git', 'gc', '--prune=now', '--aggressive'],
+      confirmMessage: 'This will optimize and prune your git repository. Continue?',
+      successMessage: '✅ Successfully optimized git repository'
+    },
+    {
+      name: 'npm-cache',
+      description: 'Clear npm cache',
+      command: ['npm', 'cache', 'clean', '--force'],
+      confirmMessage: 'This will clear npm cache. Continue?',
+      successMessage: '✅ Successfully cleared npm cache'
+    }
+  ];
+
   try {
-    spinner.start('Fetching remote branches...');
-    await execaCommand('git fetch --prune');
-    spinner.stop('✅ Fetched remote branches');
-    
-    spinner.start('Checking for merged branches...');
-    const { stdout: mergedBranches } = await execaCommand(
-      'git branch -r --merged main | grep -v "^  origin/main" | sed "s|origin/||"'
-    ) as { stdout: string };
-    
-    if (!mergedBranches.trim()) {
-      p.outro('✅ No merged branches to clean up');
-      return;
-    }
-    spinner.stop('✅ Found branches to clean');
-    
-    const branches = mergedBranches
-      .split('\n')
-      .filter(branch => branch.trim())
-      .map(branch => ({
-        name: branch.trim(),
-        value: branch.trim()
-      }));
-
-    const branchOptions = branches.map(branch => ({
-      label: branch.name,
-      value: branch.value,
-    }));
-
-    const selectedBranches = await p.multiselect({
-      message: 'Select branches to delete',
-      options: branchOptions,
-      required: false,
+    const selectedTarget = await clack.select({
+      message: 'Select what to clean up',
+      options: cleanupTargets.map(target => ({
+        value: target.name,
+        label: target.name,
+        hint: target.description,
+      })),
     });
-    
-    if (p.isCancel(selectedBranches)) {
-      p.cancel('Operation cancelled');
+
+    if (clack.isCancel(selectedTarget)) {
+      clack.cancel('Operation cancelled');
       return;
     }
-    
-    const branchesToDelete = Array.isArray(selectedBranches) ? selectedBranches : [];
-    
-    if (branchesToDelete.length === 0) {
-      p.outro('No branches selected for deletion');
-      return;
-    }
-    
-    // Delete selected branches
-    for (const branch of branchesToDelete) {
-      try {
-        spinner.start(`Deleting branch: ${branch}`);
-        await execaCommand(`git push origin --delete ${branch}`);
-        spinner.stop(`✅ Deleted remote branch: ${branch}`);
-      } catch (error) {
-        const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-        p.log.warning(`Failed to delete branch ${branch}: ${errorMessage}`);
+
+    const target = cleanupTargets.find(t => t.name === selectedTarget);
+    if (!target) return;
+
+    if (target.danger) {
+      const confirm = await clack.confirm({
+        message: target.confirmMessage,
+        initialValue: false
+      });
+
+      if (confirm !== true) {
+        clack.cancel('Operation cancelled');
+        return;
       }
     }
-    
-    // Clean up local branches
-    spinner.start('Cleaning up local branches...');
-    await execaCommand('git branch --merged main | grep -v "^[ *]*main$" | xargs -r git branch -d');
-    spinner.stop('✅ Cleaned up local branches');
-    
-    // Clean up git garbage
-    spinner.start('Running git garbage collection...');
-    await execaCommand('git gc --auto');
-    spinner.stop('✅ Git garbage collection completed');
-    
-    p.outro('✨ Cleanup completed!');
-  } catch (error: unknown) {
-    spinner.stop('❌ Error occurred');
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
-    p.cancel(`❌ Error during cleanup: ${errorMessage}`);
+
+    const spinner = clack.spinner();
+    spinner.start(`Cleaning up ${target.name}...`);
+
+    try {
+      await execa(target.command[0], target.command.slice(1), { cwd });
+      spinner.stop(target.successMessage);
+    } catch (error) {
+      spinner.stop(`❌ Failed to clean up ${target.name}`);
+      throw error;
+    }
+
+  } catch (error) {
+    clack.log.error(`Error during cleanup: ${error}`);
+    process.exit(1);
   }
-
-
 }
-
-export const cleanupCommand: Command = {
-  value: 'cleanup',
-  label: '🧹 Cleanup',
-  hint: 'Clean up merged branches and optimize repository',
-  handler: cleanup,
-};

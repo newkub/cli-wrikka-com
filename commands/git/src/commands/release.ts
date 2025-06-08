@@ -11,7 +11,13 @@ const execAsync = promisify(exec);
 interface PackageJson {
   name: string;
   version: string;
-  [key: string]: any;
+  description?: string;
+  main?: string;
+  scripts?: Record<string, string>;
+  dependencies?: Record<string, string>;
+  devDependencies?: Record<string, string>;
+  peerDependencies?: Record<string, string>;
+  [key: string]: unknown;
 }
 
 // Simple semver increment functions
@@ -187,7 +193,8 @@ async function updatePackageVersion(version: string) {
   const packageJsonPath = join(process.cwd(), 'package.json');
   const pkg = JSON.parse(readFileSync(packageJsonPath, 'utf-8')) as PackageJson;
   pkg.version = version;
-  writeFileSync(packageJsonPath, JSON.stringify(pkg, null, 2) + '\n');
+  writeFileSync(packageJsonPath, `${JSON.stringify(pkg, null, 2)}
+`);
 }
 
 async function getChangelog(version: string): Promise<string> {

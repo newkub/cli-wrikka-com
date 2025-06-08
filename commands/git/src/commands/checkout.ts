@@ -1,62 +1,131 @@
-import { execa } from 'execa';
 import * as clack from '@clack/prompts';
-import useGit from "../utils/useGit";
+import { execa } from 'execa';
+import useGit from '../utils/useGit';
+
+interface CheckoutTarget {
+  type: 'branch' | 'commit' | 'tag';
+  name: string;
+  isRemote?: boolean;
+}
 
 export async function checkout() {
-  const git = useGit();
-  const gitRoot = process.cwd(); // Get current working directory as git root
-
+  const _git = useGit();
+  const cwd = process.cwd();
+  
   try {
-    // ตรวจสอบ branch ทั้งหมด
-    const { stdout: branchesOutput = '' } = await git.execute(['branch', '-a']);
-    const branches = branchesOutput
-      .split('\n')
-      .map(b => b.replace('*', '').trim())
-      .filter((b): b is string => b.length > 0);
+    // Get all available targets (branches, tags, commits)
+    const [branches, tags, recentCommits] = await Promise.all([
+      getBranches(),
+      getTags(),
+      getRecentCommits(),
+    ]);
 
-    // ตรวจสอบ tags
-    const { stdout: tagsOutput = '' } = await execa('git', ['tag'], { cwd: gitRoot });
-    const tags = tagsOutput.split('\n').filter((t): t is string => t.length > 0);
+    // Transform data for the select prompt
+    const branchOptions = branches.map(branch => ({
+      value: { type: 'branch', name: branch, isRemote: branch.startsWith('remotes/') } as CheckoutTarget,
+      label: `${branch.startsWith('remotes/') ? '🌐 ' : '🌿 '}${branch.replace('remotes/', '')}`,
+    }));
 
-    // สร้าง options สำหรับเลือก
-    const options = [
-      ...branches.map(b => ({ value: b, label: `🌿 Branch: ${b}` })),
-      ...tags.map(t => ({ value: t, label: `🏷️ Tag: ${t}` }))
+    const tagOptions = tags.map(tag => ({
+      value: { type: 'tag', name: tag } as CheckoutTarget,
+      label: `🏷️  ${tag}`,
+    }));
+
+    const commitOptions = recentCommits.map(commit => ({
+      value: { type: 'commit', name: commit.hash } as CheckoutTarget,
+      label: `🔹 ${commit.message} (${commit.hash.slice(0, 7)})`,
+      hint: `${commit.date} - ${commit.author}`,
+    }));
+
+    const allOptions = [
+      ...branchOptions,
+      ...tagOptions,
+      ...commitOptions,
     ];
 
-    if (options.length === 0) {
-      clack.outro('No branches or tags found');
-      return;
-    }
-
-    const target = await clack.select({
-      message: 'Select branch or tag to checkout',
-      options,
+    const selected = await clack.select({
+      message: 'Select a branch, tag, or commit to checkout',
+      options: allOptions,
     });
 
-    if (clack.isCancel(target)) {
+    if (clack.isCancel(selected)) {
       clack.cancel('Operation cancelled');
       return;
     }
 
+    const target = selected as CheckoutTarget;
     const spinner = clack.spinner();
-    spinner.start(`Checking out ${target}`);
-
-    await execa('git', ['checkout', target as string], {
-      stdio: 'inherit',
-      cwd: gitRoot
-    });
-
-    spinner.stop(`✅ Successfully checked out ${target}`);
-
-  } catch (error: unknown) {
-    const spinner = clack.spinner();
-    spinner.stop('❌ Checkout failed');
-    if (error instanceof Error) {
-      clack.outro(`Error: ${error.message}`);
-    } else {
-      clack.outro('Error during checkout');
+    
+    try {
+      spinner.start(`Checking out ${target.type} ${target.name}`);
+      
+      if (target.type === 'branch' && target.isRemote) {
+        // For remote branches, create a local tracking branch
+        const branchName = target.name.split('/').slice(2).join('/');
+        await execa('git', ['checkout', '-b', branchName, '--track', target.name], { cwd });
+      } else if (target.type === 'commit') {
+        // For commits, do a detached HEAD checkout
+        await execa('git', ['checkout', target.name], { cwd });
+      } else {
+        // For branches and tags
+        await execa('git', ['checkout', target.name], { cwd });
+      }
+      
+      spinner.stop(`✅ Successfully checked out ${target.type} ${target.name}`);
+    } catch (error) {
+      spinner.stop('❌ Checkout failed');
+      throw error;
     }
+  } catch (error) {
+    clack.outro(`❌ Error: ${error instanceof Error ? error.message : 'Unknown error during checkout'}`);
     process.exit(1);
+  }
+}
+
+// Helper functions
+async function getBranches(): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['branch', '-a', '--format=%(refname:short)']);
+    return stdout.split('\n').filter(Boolean);
+  } catch (error) {
+    throw new Error(`Failed to get branches: ${error}`);
+  }
+}
+
+async function getTags(): Promise<string[]> {
+  try {
+    const { stdout } = await execa('git', ['tag', '--sort=-creatordate']);
+    return stdout.split('\n').filter(Boolean);
+  } catch (error) {
+    throw new Error(`Failed to get tags: ${error}`);
+  }
+}
+
+interface CommitInfo {
+  hash: string;
+  message: string;
+  author: string;
+  date: string;
+}
+
+async function getRecentCommits(limit = 10): Promise<CommitInfo[]> {
+  try {
+    const format = '%H|%s|%an|%ad';
+    const { stdout } = await execa('git', [
+      'log',
+      `-n ${limit}`,
+      `--pretty=format:${format}`,
+      '--date=short',
+    ]);
+
+    return stdout
+      .split('\n')
+      .filter(Boolean)
+      .map(line => {
+        const [hash, message, author, date] = line.split('|');
+        return { hash, message, author, date };
+      });
+  } catch (error) {
+    throw new Error(`Failed to get recent commits: ${error}`);
   }
 }

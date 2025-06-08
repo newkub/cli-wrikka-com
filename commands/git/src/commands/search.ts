@@ -1,6 +1,6 @@
 import { execaCommand } from 'execa';
 import * as p from '@clack/prompts';
-import { Command } from './index';
+import type { Command } from './index';
 
 type SearchType = 'grep' | 'log-message' | 'log-content' | 'log-author';
 
@@ -97,7 +97,7 @@ export async function search() {
     }
 
     try {
-      const { stdout, stderr, exitCode } = await execaCommand(command, { 
+      const { stdout, stderr: _stderr, exitCode } = await execaCommand(command, { 
         reject: false,
         shell: true,
         all: true  // Combine stdout and stderr for better error handling

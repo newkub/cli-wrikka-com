@@ -86,8 +86,8 @@ async function handleInteractiveRebase() {
     placeholder: 'e.g., 5',
     defaultValue: '5',
     validate: (value) => {
-      const num = parseInt(value, 10);
-      if (isNaN(num) || num < 1) {
+      const num = Number.parseInt(value, 10);
+      if (Number.isNaN(num) || num < 1) {
         return 'Please enter a valid number greater than 0';
       }
     },
