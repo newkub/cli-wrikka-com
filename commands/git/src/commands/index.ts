@@ -12,6 +12,7 @@ import { release } from './release';
 import { remote } from './remote';
 import { repo } from './repo';
 import { stash } from './stash';
+import { status } from './status';
 import { tag } from './tag';
 import { workspace } from './workspace';
 
@@ -119,9 +120,15 @@ export const COMMANDS: Command[] = [
     hint: 'Apply changes from specific commits',
     handler: cherryPick,
   },
+  {
+    value: 'status',
+    label: '📋 Status',
+    hint: 'Show the working tree status',
+    handler: status,
+  },
 ];
 
 export {
   branch, checkout, cherryPick, commit, diff, fileHistory, github,
-  hooks, commitLog, rebaseCommand as rebase, release, remote, repo, stash, tag, workspace
+  hooks, commitLog, rebaseCommand as rebase, release, remote, repo, stash, status, tag, workspace
 };
